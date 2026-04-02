@@ -3,6 +3,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 
 import appCss from "../styles.css?url"
+import { FloatingNav } from "@/components/floating-nav"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -35,7 +36,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <FloatingNav />
+        <div className="min-h-svh pt-20">{children}</div>
         <TanStackDevtools
           config={{
             position: "bottom-right",
