@@ -9,8 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TierListRouteImport } from './routes/tier-list'
+import { Route as SimuladorRouteImport } from './routes/simulador'
+import { Route as ConvocacaoRouteImport } from './routes/convocacao'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TierListRoute = TierListRouteImport.update({
+  id: '/tier-list',
+  path: '/tier-list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SimuladorRoute = SimuladorRouteImport.update({
+  id: '/simulador',
+  path: '/simulador',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConvocacaoRoute = ConvocacaoRouteImport.update({
+  id: '/convocacao',
+  path: '/convocacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +37,61 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/convocacao': typeof ConvocacaoRoute
+  '/simulador': typeof SimuladorRoute
+  '/tier-list': typeof TierListRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/convocacao': typeof ConvocacaoRoute
+  '/simulador': typeof SimuladorRoute
+  '/tier-list': typeof TierListRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/convocacao': typeof ConvocacaoRoute
+  '/simulador': typeof SimuladorRoute
+  '/tier-list': typeof TierListRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/convocacao' | '/simulador' | '/tier-list'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/convocacao' | '/simulador' | '/tier-list'
+  id: '__root__' | '/' | '/convocacao' | '/simulador' | '/tier-list'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConvocacaoRoute: typeof ConvocacaoRoute
+  SimuladorRoute: typeof SimuladorRoute
+  TierListRoute: typeof TierListRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tier-list': {
+      id: '/tier-list'
+      path: '/tier-list'
+      fullPath: '/tier-list'
+      preLoaderRoute: typeof TierListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/simulador': {
+      id: '/simulador'
+      path: '/simulador'
+      fullPath: '/simulador'
+      preLoaderRoute: typeof SimuladorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/convocacao': {
+      id: '/convocacao'
+      path: '/convocacao'
+      fullPath: '/convocacao'
+      preLoaderRoute: typeof ConvocacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +104,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConvocacaoRoute: ConvocacaoRoute,
+  SimuladorRoute: SimuladorRoute,
+  TierListRoute: TierListRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
