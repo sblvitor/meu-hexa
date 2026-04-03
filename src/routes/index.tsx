@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 export const Route = createFileRoute("/")({ component: LandingPage })
 
-const BRAZIL_DEBUT = new Date("2026-06-15T16:00:00-03:00")
+const BRAZIL_DEBUT = new Date("2026-06-13T19:00:00-03:00")
 
 const stagger = {
   hidden: {},
