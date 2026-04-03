@@ -147,14 +147,14 @@ function LandingPage() {
                   ESTREIA DO BRASIL
                 </CardTitle>
                 <CardDescription className="font-heading text-[0.6rem] tracking-wider sm:text-xs">
-                  15 JUN 2026
+                  13 JUN 2026
                 </CardDescription>
               </CardHeader>
 
               <CardContent className="flex items-center justify-center gap-2.5 px-5 py-5 sm:gap-3.5">
                 {(
                   [
-                    [days, "DIA"],
+                    [days, "DIAS"],
                     [hours, "HRS"],
                     [minutes, "MIN"],
                     [seconds, "SEG"],
