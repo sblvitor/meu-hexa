@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { useCountdown } from "@/hooks/use-countdown"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const Route = createFileRoute("/")({ component: LandingPage })
 
@@ -139,51 +140,50 @@ function LandingPage() {
           </motion.div>
 
           {/* ── Match-ticket countdown ── */}
-          <motion.div
-            variants={fadeUp}
-            className="mt-16 w-full max-w-88 border-2 border-border bg-card shadow-(--brutal-shadow)"
-          >
-            <div className="flex items-center justify-between border-b-2 border-dashed border-border/40 px-5 py-3">
-              <span className="font-heading text-[0.6rem] tracking-[0.2em] sm:text-xs">
-                ESTREIA DO BRASIL
-              </span>
-              <span className="font-heading text-[0.6rem] tracking-wider text-muted-foreground sm:text-xs">
-                15 JUN 2026
-              </span>
-            </div>
+          <motion.div variants={fadeUp} className="mt-16 w-full max-w-88">
+            <Card className="gap-0 rounded-none py-0">
+              <CardHeader className="flex flex-row items-center justify-between rounded-none border-b-2 border-dashed border-border/40 px-5 py-3">
+                <CardTitle className="text-[0.6rem] tracking-[0.2em] sm:text-xs">
+                  ESTREIA DO BRASIL
+                </CardTitle>
+                <CardDescription className="font-heading text-[0.6rem] tracking-wider sm:text-xs">
+                  15 JUN 2026
+                </CardDescription>
+              </CardHeader>
 
-            <div className="flex items-center justify-center gap-2.5 px-5 py-5 sm:gap-3.5">
-              {(
-                [
-                  [days, "DIA"],
-                  [hours, "HRS"],
-                  [minutes, "MIN"],
-                  [seconds, "SEG"],
-                ] as const
-              ).map(([v, l], i) => (
-                <React.Fragment key={l}>
-                  {i > 0 && (
-                    <span className="mb-3 font-heading text-lg text-border/40 sm:text-xl">
-                      :
-                    </span>
-                  )}
-                  <div className="flex flex-col items-center">
-                    <span className="font-heading text-2xl tabular-nums sm:text-3xl md:text-4xl">
-                      {String(v).padStart(2, "0")}
-                    </span>
-                    <span className="mt-0.5 text-[0.5rem] tracking-[0.2em] text-muted-foreground uppercase sm:text-[0.6rem]">
-                      {l}
-                    </span>
-                  </div>
-                </React.Fragment>
-              ))}
-            </div>
+              <CardContent className="flex items-center justify-center gap-2.5 px-5 py-5 sm:gap-3.5">
+                {(
+                  [
+                    [days, "DIA"],
+                    [hours, "HRS"],
+                    [minutes, "MIN"],
+                    [seconds, "SEG"],
+                  ] as const
+                ).map(([v, l], i) => (
+                  <React.Fragment key={l}>
+                    {i > 0 && (
+                      <span className="mb-3 font-heading text-lg text-border/40 sm:text-xl">
+                        :
+                      </span>
+                    )}
+                    <div className="flex flex-col items-center">
+                      <span className="font-heading text-2xl tabular-nums sm:text-3xl md:text-4xl">
+                        {String(v).padStart(2, "0")}
+                      </span>
+                      <span className="mt-0.5 text-[0.5rem] tracking-[0.2em] text-muted-foreground uppercase sm:text-[0.6rem]">
+                        {l}
+                      </span>
+                    </div>
+                  </React.Fragment>
+                ))}
+              </CardContent>
 
-            <div className="flex items-center justify-center border-t border-dashed border-border/30 py-2">
-              <span className="text-[0.55rem] tracking-[0.3em] text-muted-foreground/50">
-                ★★★★★☆
-              </span>
-            </div>
+              <CardFooter className="justify-center rounded-none border-dashed border-border/30 bg-transparent p-2">
+                <span className="text-[0.55rem] tracking-[0.3em] text-muted-foreground/50">
+                  ★★★★★☆
+                </span>
+              </CardFooter>
+            </Card>
           </motion.div>
         </motion.div>
       </section>
