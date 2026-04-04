@@ -1,4 +1,4 @@
-import { XIcon } from "lucide-react"
+import { Share2Icon, XIcon } from "lucide-react"
 
 import type { Jogador } from "@/data/jogadores"
 import { POSICAO_LABEL, POSICOES } from "@/data/jogadores"
@@ -17,6 +17,8 @@ type SelectedPanelProps = {
   instanceId: "sidebar" | "drawer"
   className?: string
   listClassName?: string
+  /** Chamado quando a lista atinge o mínimo de convocados; exibe CTA de compartilhar. */
+  onShareClick?: () => void
 }
 
 export function SelectedPanel({
@@ -26,6 +28,7 @@ export function SelectedPanel({
   instanceId,
   className,
   listClassName,
+  onShareClick,
 }: SelectedPanelProps) {
   const rowId = (playerId: string) => `${instanceId}-convocado-row-${playerId}`
 
@@ -36,11 +39,25 @@ export function SelectedPanel({
         className,
       )}
     >
-      <div className="flex shrink-0 items-baseline justify-between gap-2 border-b border-border px-4 py-3">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-3">
         <h2 className="font-heading text-sm font-medium tracking-wide uppercase">Convocados</h2>
-        <span className="text-xs tabular-nums text-muted-foreground">
-          {count}/{MAX_CONVOCADOS}
-        </span>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <span className="text-xs tabular-nums text-muted-foreground">
+            {count}/{MAX_CONVOCADOS}
+          </span>
+          {count === MAX_CONVOCADOS && onShareClick ? (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="gap-1.5"
+              onClick={onShareClick}
+            >
+              <Share2Icon data-icon="inline-start" />
+              Compartilhar
+            </Button>
+          ) : null}
+        </div>
       </div>
       {jogadores.length === 0 ? (
         <p className="px-4 py-6 text-sm text-muted-foreground">

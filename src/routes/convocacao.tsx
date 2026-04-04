@@ -1,13 +1,15 @@
 import * as React from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { motion } from "motion/react"
-import { UsersIcon } from "lucide-react"
+import { Share2Icon, UsersIcon } from "lucide-react"
 
 import { toast } from "sonner"
 import type { Posicao } from "@/data/jogadores"
 import { JOGADORES, POSICAO_LABEL, POSICOES } from "@/data/jogadores"
 import { PlayerCard } from "@/components/convocacao/player-card"
 import { MAX_CONVOCADOS, SelectedPanel } from "@/components/convocacao/selected-panel"
+import { ShareConvocacaoDialog } from "@/components/convocacao/share-convocacao-dialog"
+import { formatDataConvocacaoPt, groupJogadoresPorSetor } from "@/lib/convocacao-share"
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
@@ -57,6 +59,8 @@ function ConvocacaoPage() {
   const [posicao, setPosicao] = React.useState<string>(ALL)
   const [orderedIds, setOrderedIds] = React.useState<Array<string>>([])
   const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const [shareOpen, setShareOpen] = React.useState(false)
+  const [shareDateLabel, setShareDateLabel] = React.useState("")
   const prevConvocadosLenRef = React.useRef(0)
   const addBlockedAtLimitRef = React.useRef(false)
 
@@ -76,6 +80,16 @@ function ConvocacaoPage() {
       return stripAccents(j.nome).includes(searchNorm)
     })
   }, [posicao, searchNorm])
+
+  const setoresShare = React.useMemo(
+    () => groupJogadoresPorSetor(orderedIds, jogadorMap),
+    [orderedIds],
+  )
+
+  function openShareDialog() {
+    setShareDateLabel(formatDataConvocacaoPt())
+    setShareOpen(true)
+  }
 
   React.useEffect(() => {
     if (orderedIds.length > prevConvocadosLenRef.current) {
@@ -170,6 +184,28 @@ function ConvocacaoPage() {
           </motion.p>
         </motion.header>
 
+        {orderedIds.length === MAX_CONVOCADOS ? (
+          <motion.div
+            className="relative mb-8 flex flex-col gap-3 rounded-xl border-2 border-primary bg-primary/10 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+          >
+            <p className="text-sm font-medium text-foreground">
+              Convocação completa — gere um cartão para stories ou feed e compartilhe com a galera.
+            </p>
+            <Button
+              type="button"
+              variant="default"
+              className="w-full shrink-0 gap-2 sm:w-auto"
+              onClick={openShareDialog}
+            >
+              <Share2Icon data-icon="inline-start" />
+              Compartilhar convocação
+            </Button>
+          </motion.div>
+        ) : null}
+
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -229,6 +265,7 @@ function ConvocacaoPage() {
                     jogadores={selectedJogadores}
                     count={orderedIds.length}
                     onRemove={removeId}
+                    onShareClick={openShareDialog}
                     listClassName="max-h-[55vh]"
                   />
                 </div>
@@ -271,9 +308,17 @@ function ConvocacaoPage() {
           jogadores={selectedJogadores}
           count={orderedIds.length}
           onRemove={removeId}
+          onShareClick={openShareDialog}
           listClassName="min-h-0"
         />
       </aside>
+
+      <ShareConvocacaoDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        setores={setoresShare}
+        dataConvocacao={shareDateLabel}
+      />
       </div>
     </div>
   )
