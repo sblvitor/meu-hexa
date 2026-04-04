@@ -1,5 +1,6 @@
 import * as React from "react"
 import { createFileRoute } from "@tanstack/react-router"
+import { motion } from "motion/react"
 import { UsersIcon } from "lucide-react"
 
 import { toast } from "sonner"
@@ -29,6 +30,20 @@ const ALL = "all"
 const TOAST_LIMITE_ID = "convocado-limite-26"
 
 const jogadorMap = new Map(JOGADORES.map((j) => [j.id, j]))
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1 } },
+}
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" as const },
+  },
+}
 
 function stripAccents(s: string) {
   return s
@@ -107,21 +122,60 @@ function ConvocacaoPage() {
   }
 
   return (
-    <div className="relative mx-auto max-w-[1600px] px-4 pb-20 lg:pr-80">
-      <header className="mb-8 max-w-2xl">
-        <p className="font-heading text-xs font-medium tracking-widest text-muted-foreground uppercase">
-          Copa do Mundo 2026
-        </p>
-        <h1 className="mt-1 font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
-          Convocação
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Monte os 26 nomes a partir do elenco abaixo. Use busca e posição para achar jogadores; a lista à direita
-          acompanha cada escolha — no celular, ela abre no painel inferior.
-        </p>
-      </header>
+    <div className="relative overflow-x-hidden pb-20">
+      <div
+        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+        aria-hidden
+      >
+        <div className="absolute top-[8%] left-1/2 h-18 w-[220vw] max-w-none -translate-x-1/2 -rotate-11 bg-secondary/18 sm:h-22 md:h-26" />
+        <div className="absolute -top-24 -left-20 size-[min(85vw,24rem)] rounded-full bg-primary/10 blur-3xl md:size-112" />
+        <div className="absolute right-0 bottom-[10%] size-[min(70vw,18rem)] translate-x-1/4 rounded-full bg-accent/12 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 size-[min(110vw,48rem)] -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-primary/8 md:size-224" />
+        <div className="absolute top-1/2 left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15" />
+        <span className="absolute top-24 right-[12%] font-heading text-[18vw] leading-none text-foreground/2.5 select-none sm:text-[14vw] lg:text-[min(12rem,11vw)]">
+          26
+        </span>
+      </div>
 
-      <FieldGroup className="mb-8">
+      <div className="relative mx-auto max-w-[1600px] px-4 lg:pr-80">
+        <motion.header
+          className="relative mb-10 max-w-2xl"
+          variants={stagger}
+          initial="hidden"
+          animate="show"
+        >
+          <motion.div variants={fadeUp} className="mb-2 flex items-center gap-2">
+            <span className="h-1 w-8 shrink-0 rounded-full bg-primary sm:w-10" />
+            <span className="text-secondary drop-shadow-[0_1px_0_rgba(0,0,0,.12)]">★★★★★</span>
+            <span className="h-1 flex-1 max-w-16 rounded-full bg-linear-to-r from-primary/40 to-transparent sm:max-w-20" />
+          </motion.div>
+          <motion.p
+            variants={fadeUp}
+            className="font-heading text-xs font-medium tracking-widest text-primary uppercase"
+          >
+            Copa do Mundo 2026
+          </motion.p>
+          <motion.h1
+            variants={fadeUp}
+            className="mt-1 font-heading text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl"
+          >
+            Convocação
+          </motion.h1>
+          <motion.p
+            variants={fadeUp}
+            className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base"
+          >
+            Monte os 26 nomes a partir do elenco abaixo. Use busca e posição para achar jogadores; a lista à direita
+            acompanha cada escolha — no celular, ela abre no painel inferior.
+          </motion.p>
+        </motion.header>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.2, ease: "easeOut" }}
+        >
+          <FieldGroup className="mb-8">
         <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end md:gap-x-4 md:gap-y-3">
           <Field className="min-w-0 w-full shrink-0 md:w-56 lg:w-64">
             <FieldLabel htmlFor="convocacao-busca">Buscar por nome</FieldLabel>
@@ -183,8 +237,14 @@ function ConvocacaoPage() {
           </div>
         </div>
       </FieldGroup>
+        </motion.div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 md:gap-3 lg:grid-cols-5 lg:gap-3 xl:grid-cols-5">
+      <motion.div
+        className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 md:gap-3 lg:grid-cols-5 lg:gap-3 xl:grid-cols-5"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.28, ease: "easeOut" }}
+      >
         {filtered.map((j) => (
           <PlayerCard
             key={j.id}
@@ -193,7 +253,7 @@ function ConvocacaoPage() {
             onToggle={() => toggleId(j.id)}
           />
         ))}
-      </div>
+      </motion.div>
 
       {filtered.length === 0 ? (
         <p className="mt-10 text-center text-sm text-muted-foreground">
@@ -214,6 +274,7 @@ function ConvocacaoPage() {
           listClassName="min-h-0"
         />
       </aside>
+      </div>
     </div>
   )
 }
