@@ -18,6 +18,7 @@ export type Jogador = {
   clube: string
   posicao: Posicao
   foto: string
+  escudo: string
 }
 
 const fotoModules = import.meta.glob<string>(
@@ -39,6 +40,62 @@ function resolveFoto(slug: string): string {
     if (base && base !== "placeholder" && base === key) return url
   }
   return placeholderUrl
+}
+
+const escudoModules = import.meta.glob<string>(
+  ["../assets/clubes/*.png", "../assets/clubes/*.webp", "../assets/clubes/*.svg"],
+  { eager: true, import: "default" },
+)
+
+function resolveEscudo(slug: string): string {
+  const key = slug.toLowerCase()
+  for (const [path, url] of Object.entries(escudoModules)) {
+    const file = path.split("/").pop()
+    if (!file) continue
+    const base = file.replace(/\.[^.]+$/i, "").toLowerCase()
+    if (base === key) return url
+  }
+  return placeholderUrl
+}
+
+/** Nome do clube (como em `JOGADORES_META`) → slug do arquivo em `src/assets/clubes/`. */
+const ESCUDO_SLUG_POR_CLUBE: Record<string, string> = {
+  "Al-Ahli": "al-ahli",
+  "Al-Ittihad": "al-ittihad",
+  "Al Nassr": "al-nassr",
+  Arsenal: "arsenal",
+  Atalanta: "atalanta",
+  Barcelona: "barcelona",
+  Botafogo: "botafogo",
+  Bournemouth: "bournemouth",
+  Brentford: "brentford",
+  Chelsea: "chelsea",
+  Corinthians: "corinthians",
+  Cruzeiro: "cruzeiro",
+  "Fenerbahçe": "fenerbahce",
+  Flamengo: "flamengo",
+  Fluminense: "fluminense",
+  Galatasaray: "galatasaray",
+  Girona: "girona",
+  Internazionale: "internazionale",
+  Juventus: "juventus",
+  "Leeds United": "leeds",
+  "LOSC Lille": "lille",
+  Liverpool: "liverpool",
+  Lyon: "lyon",
+  "Manchester City": "manchester-city",
+  "Manchester United": "manchester-united",
+  Monaco: "monaco",
+  "Newcastle United": "newcastle",
+  "Nottingham Forest": "nottingham-forest",
+  Palmeiras: "palmeiras",
+  "Paris Saint-Germain": "psg",
+  "Real Betis": "real-betis",
+  "Real Madrid": "real-madrid",
+  Roma: "roma",
+  Santos: "santos",
+  Tottenham: "tottenham",
+  Zenit: "zenit",
 }
 
 /**
@@ -107,7 +164,11 @@ const JOGADORES_META = [
   posicao: Posicao
 }>
 
-export const JOGADORES: Array<Jogador> = JOGADORES_META.map((j) => ({
-  ...j,
-  foto: resolveFoto(j.id),
-}))
+export const JOGADORES: Array<Jogador> = JOGADORES_META.map((j) => {
+  const escudoSlug = ESCUDO_SLUG_POR_CLUBE[j.clube]
+  return {
+    ...j,
+    foto: resolveFoto(j.id),
+    escudo: escudoSlug ? resolveEscudo(escudoSlug) : placeholderUrl,
+  }
+})
