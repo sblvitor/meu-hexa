@@ -16,14 +16,7 @@ import {
 } from "@/components/ui/drawer"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/convocacao")({
@@ -78,7 +71,7 @@ function ConvocacaoPage() {
   }
 
   return (
-    <div className="relative mx-auto max-w-[1600px] px-4 pb-20 lg:pr-[20rem]">
+    <div className="relative mx-auto max-w-[1600px] px-4 pb-20 lg:pr-80">
       <header className="mb-8 max-w-2xl">
         <p className="font-heading text-xs font-medium tracking-widest text-muted-foreground uppercase">
           Copa do Mundo 2026
@@ -93,8 +86,8 @@ function ConvocacaoPage() {
       </header>
 
       <FieldGroup className="mb-8">
-        <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end">
-          <Field className="min-w-0 flex-1 md:max-w-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end md:gap-x-4 md:gap-y-3">
+          <Field className="min-w-0 w-full shrink-0 md:w-56 lg:w-64">
             <FieldLabel htmlFor="convocacao-busca">Buscar por nome</FieldLabel>
             <Input
               id="convocacao-busca"
@@ -104,28 +97,34 @@ function ConvocacaoPage() {
               autoComplete="off"
             />
           </Field>
-          <Field className="w-full md:w-60">
-            <FieldLabel htmlFor="convocacao-posicao">Posição</FieldLabel>
-            <Select value={posicao} onValueChange={setPosicao}>
-              <SelectTrigger id="convocacao-posicao" className="w-full md:w-60">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value={ALL}>Todas as posições</SelectItem>
-                  {POSICOES.map((p) => (
-                    <SelectItem key={p} value={p}>
-                      {POSICAO_LABEL[p]}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+          <Field className="min-w-0 w-full flex-1 md:min-w-0">
+            <FieldLabel id="convocacao-posicao-label">Posição</FieldLabel>
+            <ToggleGroup
+              type="single"
+              value={posicao}
+              onValueChange={(v) => {
+                if (v) setPosicao(v)
+              }}
+              variant="outline"
+              size="sm"
+              spacing={2}
+              aria-labelledby="convocacao-posicao-label"
+              className="flex w-full flex-wrap content-start gap-2"
+            >
+              <ToggleGroupItem value={ALL} className="text-xs sm:text-sm">
+                Todas
+              </ToggleGroupItem>
+              {POSICOES.map((p) => (
+                <ToggleGroupItem key={p} value={p} className="text-xs sm:text-sm">
+                  {POSICAO_LABEL[p]}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </Field>
-          <div className="flex lg:hidden">
+          <div className="flex w-full shrink-0 md:w-auto lg:hidden">
             <Drawer direction="bottom" open={drawerOpen} onOpenChange={setDrawerOpen}>
               <DrawerTrigger asChild>
-                <Button type="button" variant="outline" className="gap-2">
+                <Button type="button" variant="outline" className="w-full gap-2 md:w-auto">
                   <UsersIcon data-icon="inline-start" />
                   Convocados ({orderedIds.length})
                 </Button>
