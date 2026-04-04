@@ -2,6 +2,7 @@ import * as React from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { UsersIcon } from "lucide-react"
 
+import { toast } from "sonner"
 import type { Posicao } from "@/data/jogadores"
 import { JOGADORES, POSICAO_LABEL, POSICOES } from "@/data/jogadores"
 import { PlayerCard } from "@/components/convocacao/player-card"
@@ -25,6 +26,8 @@ export const Route = createFileRoute("/convocacao")({
 
 const ALL = "all"
 
+const TOAST_LIMITE_ID = "convocado-limite-26"
+
 const jogadorMap = new Map(JOGADORES.map((j) => [j.id, j]))
 
 function stripAccents(s: string) {
@@ -39,6 +42,8 @@ function ConvocacaoPage() {
   const [posicao, setPosicao] = React.useState<string>(ALL)
   const [orderedIds, setOrderedIds] = React.useState<Array<string>>([])
   const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const prevConvocadosLenRef = React.useRef(0)
+  const addBlockedAtLimitRef = React.useRef(false)
 
   const selectedSet = React.useMemo(() => new Set(orderedIds), [orderedIds])
 
@@ -57,12 +62,43 @@ function ConvocacaoPage() {
     })
   }, [posicao, searchNorm])
 
+  React.useEffect(() => {
+    if (orderedIds.length > prevConvocadosLenRef.current) {
+      const lastId = orderedIds[orderedIds.length - 1]
+      const prefix = window.matchMedia("(min-width: 1024px)").matches ? "sidebar" : "drawer"
+      requestAnimationFrame(() => {
+        document
+          .getElementById(`${prefix}-convocado-row-${lastId}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+      })
+    }
+    prevConvocadosLenRef.current = orderedIds.length
+  }, [orderedIds])
+
+  React.useEffect(() => {
+    if (orderedIds.length < MAX_CONVOCADOS) {
+      toast.dismiss(TOAST_LIMITE_ID)
+    }
+  }, [orderedIds.length])
+
   function toggleId(id: string) {
+    addBlockedAtLimitRef.current = false
     setOrderedIds((prev) => {
       const i = prev.indexOf(id)
       if (i >= 0) return prev.filter((x) => x !== id)
-      if (prev.length >= MAX_CONVOCADOS) return prev
+      if (prev.length >= MAX_CONVOCADOS) {
+        addBlockedAtLimitRef.current = true
+        return prev
+      }
       return [...prev, id]
+    })
+    queueMicrotask(() => {
+      if (!addBlockedAtLimitRef.current) return
+      addBlockedAtLimitRef.current = false
+      toast.warning("Limite de 26 convocados", {
+        id: TOAST_LIMITE_ID,
+        description: "Remova alguém da lista para adicionar outro jogador.",
+      })
     })
   }
 
@@ -135,6 +171,7 @@ function ConvocacaoPage() {
                 </DrawerHeader>
                 <div className="px-4 pb-8">
                   <SelectedPanel
+                    instanceId="drawer"
                     jogadores={selectedJogadores}
                     count={orderedIds.length}
                     onRemove={removeId}
@@ -166,10 +203,11 @@ function ConvocacaoPage() {
 
       <aside
         className={cn(
-          "fixed top-24 right-4 z-40 hidden h-[calc(100svh-6.5rem)] w-[min(18rem,calc(100vw-2rem))] lg:flex lg:flex-col",
+          "fixed top-24 right-8 z-40 hidden h-[calc(100svh-6.5rem)] w-[min(18rem,calc(100vw-2rem))] lg:flex lg:flex-col",
         )}
       >
         <SelectedPanel
+          instanceId="sidebar"
           jogadores={selectedJogadores}
           count={orderedIds.length}
           onRemove={removeId}
