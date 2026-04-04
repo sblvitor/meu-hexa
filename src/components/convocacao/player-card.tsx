@@ -17,9 +17,9 @@ export function PlayerCard({ jogador, selected, onToggle }: PlayerCardProps) {
       onClick={onToggle}
       aria-pressed={selected}
       className={cn(
-        "group relative w-full overflow-hidden rounded-xl border-2 border-border bg-card text-left shadow-[3px_3px_0_var(--foreground)] outline-none transition-shadow",
+        "group relative w-full overflow-hidden rounded-xl border-2 border-border bg-card text-left outline-none transition-shadow",
         "focus-visible:ring-3 focus-visible:ring-ring/50",
-        selected && "border-primary ring-2 ring-primary ring-offset-2 ring-offset-background",
+        selected && "border-primary",
       )}
     >
       <Card className="gap-0 border-0 py-0 shadow-none ring-0">
