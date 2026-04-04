@@ -17,7 +17,7 @@ export function PlayerCard({ jogador, selected, onToggle }: PlayerCardProps) {
       onClick={onToggle}
       aria-pressed={selected}
       className={cn(
-        "group relative w-full overflow-hidden rounded-xl border-2 border-border bg-card text-left outline-none transition-shadow",
+        "group relative w-full overflow-hidden rounded-lg border-2 border-border bg-card text-left outline-none transition-shadow",
         "focus-visible:ring-3 focus-visible:ring-ring/50",
         selected && "border-primary",
       )}
@@ -40,28 +40,30 @@ export function PlayerCard({ jogador, selected, onToggle }: PlayerCardProps) {
           />
           {selected ? (
             <span
-              className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md"
+              className="absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md"
               aria-hidden
             >
               <CheckIcon />
             </span>
           ) : null}
         </div>
-        <CardHeader className="flex flex-row items-start gap-3 pt-3 pb-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-md border border-border/60 bg-card p-1">
+        <CardHeader className="flex flex-row items-start gap-2 px-2.5 pt-2 pb-2.5 sm:px-3">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded border border-border/60 bg-card p-0.5 sm:size-9">
             <img
               src={jogador.escudo}
               alt={`Imagem do escudo do ${jogador.clube}`}
-              width={32}
-              height={32}
+              width={28}
+              height={28}
               decoding="async"
-              className="max-h-7 max-w-full object-contain"
+              className="max-h-6 max-w-full object-contain sm:max-h-7"
               loading="lazy"
             />
           </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <CardTitle className="text-sm leading-tight">{jogador.nome}</CardTitle>
-            <CardDescription className="line-clamp-2 text-xs">{jogador.clube}</CardDescription>
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <CardTitle className="text-xs leading-snug sm:text-sm">{jogador.nome}</CardTitle>
+            <CardDescription className="line-clamp-2 text-[0.65rem] leading-snug sm:text-xs">
+              {jogador.clube}
+            </CardDescription>
           </div>
         </CardHeader>
       </Card>
