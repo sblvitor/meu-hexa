@@ -127,7 +127,7 @@
     [data-slot="sheet-content"],
     [data-slot="dropdown-menu-content"],
     [data-slot="badge"]
-  ) {
+  ):not([data-slot="radio-group-item"]) {
     border-width: 2px;
     border-style: solid;
     border-color: var(--border);
@@ -135,7 +135,9 @@
     box-shadow: var(--brutal-shadow);
   }
 
-  :is(button, [role="button"], [data-slot="button"]):active {
+  :is(button, [role="button"], [data-slot="button"]):not(
+    [data-slot="checkbox"]
+  ):not([data-slot="radio-group-item"]):active {
     transform: translate(2px, 2px);
     box-shadow: 1px 1px 0 var(--foreground);
   }

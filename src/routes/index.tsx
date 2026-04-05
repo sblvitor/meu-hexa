@@ -38,7 +38,7 @@ const FEATURES = [
   {
     num: "02",
     title: "Simulador",
-    desc: "Preencha os placares da fase de grupos até a grande final. Penaltis incluídos. Veja o resumo visual da campanha completa.",
+    desc: "Monte as colocações nos grupos, ordene os terceiros que classificam e avance o mata-mata no chaveamento da Copa até escolher o campeão.",
     cta: "Simular Copa",
     to: "/simulador",
     border: "border-secondary",
