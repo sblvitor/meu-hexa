@@ -1,7 +1,16 @@
 import * as React from "react"
 import { Link, useRouterState } from "@tanstack/react-router"
+import { MenuIcon } from "lucide-react"
 
 import tacaCopa from "@/assets/taca_copa.png"
+import { Button } from "@/components/ui/button"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
 import { cn } from "@/lib/utils"
 
 const SCROLL_DELTA = 10
@@ -17,7 +26,12 @@ const navItems = [
 export function FloatingNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const [visible, setVisible] = React.useState(true)
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const lastScrollY = React.useRef(0)
+
+  React.useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
 
   React.useEffect(() => {
     lastScrollY.current = window.scrollY
@@ -52,7 +66,7 @@ export function FloatingNav() {
     >
       <nav
         className={cn(
-          "pointer-events-auto flex items-center gap-2 border-2 border-border bg-card/95 px-2 py-2 shadow-[4px_4px_0_var(--foreground)] backdrop-blur-md sm:gap-3 sm:px-4 sm:py-2.5",
+          "pointer-events-auto flex w-full min-w-0 items-center gap-2 border-2 border-border bg-card/95 px-2 py-2 shadow-[4px_4px_0_var(--foreground)] backdrop-blur-md sm:gap-3 sm:px-4 sm:py-2.5",
           "max-w-[calc(100vw-1.5rem)]",
         )}
         aria-label="Navegação principal"
@@ -73,12 +87,13 @@ export function FloatingNav() {
             decoding="async"
           />
         </Link>
-        <ul className="flex min-w-0 flex-wrap items-center justify-center gap-x-1 gap-y-1 sm:gap-x-2">
+
+        <ul className="hidden min-w-0 flex-1 flex-nowrap items-center justify-center gap-x-1 sm:gap-x-2 md:flex md:overflow-x-auto md:overscroll-x-contain">
           {navItems.map(({ to, label, exact }) => {
             const active = exact ? pathname === to : pathname === to || pathname.startsWith(`${to}/`)
 
             return (
-              <li key={to}>
+              <li key={to} className="shrink-0">
                 <Link
                   to={to}
                   className={cn(
@@ -96,6 +111,49 @@ export function FloatingNav() {
             )
           })}
         </ul>
+
+        <Drawer open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <DrawerTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              className="ml-auto shrink-0 border-2 border-border shadow-[2px_2px_0_var(--foreground)] md:hidden"
+              aria-label="Abrir menu de navegação"
+            >
+              <MenuIcon className="size-4" aria-hidden />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="border-t-2 border-border bg-card">
+            <DrawerHeader className="border-b border-border text-left">
+              <DrawerTitle>Navegação</DrawerTitle>
+            </DrawerHeader>
+            <div className="flex flex-col gap-1 px-4 pb-6 pt-2">
+              {navItems.map(({ to, label, exact }) => {
+                const active = exact
+                  ? pathname === to
+                  : pathname === to || pathname.startsWith(`${to}/`)
+
+                return (
+                  <Link
+                    key={to}
+                    to={to}
+                    className={cn(
+                      "font-heading rounded-md px-3 py-3 text-sm uppercase tracking-wide no-underline transition-colors",
+                      "outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      active
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-muted",
+                    )}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    {label}
+                  </Link>
+                )
+              })}
+            </div>
+          </DrawerContent>
+        </Drawer>
       </nav>
     </header>
   )
