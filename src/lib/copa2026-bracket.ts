@@ -53,6 +53,15 @@ export function r32MatchSlotCaption(matchId: number): string | null {
   return `${formatMatchSlot(def.home)} × ${formatMatchSlot(def.away)}`
 }
 
+/** Caption for any KO match: R32 shows group slots, later rounds show feeder match refs. */
+export function koMatchCaption(matchId: number): string | null {
+  const r32 = r32MatchSlotCaption(matchId)
+  if (r32) return r32
+  const parents = KO_PARENTS[matchId]
+  if (!parents) return null
+  return `Venc. J${parents[0]} × Venc. J${parents[1]}`
+}
+
 export type ThirdByWinner = Record<
   "A" | "B" | "D" | "E" | "G" | "I" | "K" | "L",
   GroupId
