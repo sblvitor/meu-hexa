@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import tacaCopa from "@/assets/taca_copa.png"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -40,7 +38,7 @@ const RIGHT_QF = [99, 100] as const
 
 const ROUND_LABEL: Record<string, string> = {
   r32: "32 avos",
-  r16: "16 avos",
+  r16: "oitavas",
   qf: "Quartas",
   sf: "Semifinal",
   third: "3º lugar",
@@ -116,7 +114,7 @@ function PickSlot({
         aria-label={pickAria}
         title={full}
         className={cn(
-          "peer absolute inset-0 z-[1] m-0 size-full min-h-0 cursor-pointer appearance-none rounded-none border-0 bg-transparent p-0 opacity-0 shadow-none outline-none ring-0",
+          "peer absolute inset-0 z-1 m-0 size-full min-h-0 cursor-pointer appearance-none rounded-none border-0 bg-transparent p-0 opacity-0 shadow-none outline-none ring-0",
           "after:pointer-events-none after:hidden",
           "disabled:cursor-not-allowed",
         )}
@@ -210,19 +208,19 @@ function MatchCard({
     <div
       className={cn(
         "flex flex-col",
-        compact ? "w-[6rem]" : "w-[9rem] sm:w-[10.5rem]"
+        compact ? "w-24" : "w-36 sm:w-42"
       )}
     >
       <div
         className={cn(
-          "flex items-center gap-1 pb-0.5 pr-0.5",
-          compact ? "gap-0.5 pl-0 pb-px" : "pl-0.5"
+          "flex min-w-0 items-center pb-0.5 pr-0.5",
+          compact ? "gap-2 pl-0 pb-px" : "gap-2.5 pl-0.5",
         )}
       >
-        <span className="font-heading rounded-sm border-2 border-foreground bg-card px-1 py-px text-[0.5rem] font-bold leading-none tracking-widest shadow-[2px_2px_0_var(--foreground)]">
+        <span className="font-heading shrink-0 rounded-sm border-2 border-foreground bg-card px-1 py-px text-[0.5rem] font-bold leading-none tracking-widest shadow-[2px_2px_0_var(--foreground)]">
           J{matchId}
         </span>
-        <span className="font-heading truncate text-[0.48rem] font-bold tracking-wider text-muted-foreground uppercase">
+        <span className="font-heading min-w-0 flex-1 truncate text-[0.48rem] font-bold tracking-wider text-muted-foreground uppercase">
           {ROUND_LABEL[roundKey]}
         </span>
       </div>
@@ -494,7 +492,7 @@ export function KnockoutBracket({
 
           <HLines count={1} />
 
-          <div className="flex w-[7.5rem] shrink-0 flex-col items-center justify-center gap-2 border-x-2 border-foreground/15 bg-muted/15 px-1.5 py-2.5 sm:w-[7.75rem] sm:px-2">
+          <div className="flex w-30 shrink-0 flex-col items-center justify-center gap-2 border-x-2 border-foreground/15 bg-muted/15 px-1.5 py-2.5 sm:w-31 sm:px-2">
             <p className="font-heading text-center text-[0.52rem] font-bold leading-snug tracking-wider text-muted-foreground uppercase">
               Simule o caminho até a final
             </p>

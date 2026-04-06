@@ -1,5 +1,3 @@
-"use client"
-
 import type { Dispatch, SetStateAction } from "react"
 import type { GroupId, GroupRankByTeam } from "@/data/copa2026"
 import { GROUP_ORDER, GRUPOS, getSelecao } from "@/data/copa2026"
