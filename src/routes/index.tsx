@@ -46,7 +46,7 @@ const FEATURES = [
   {
     num: "03",
     title: "Tier List",
-    desc: "Organize as 48 seleções em tiers de S a F com drag-and-drop. Monte seu ranking e compartilhe.",
+    desc: "Organize as 48 seleções em tiers personalizáveis (S ao D e além) com arrastar e soltar. Monte seu ranking.",
     cta: "Criar ranking",
     to: "/tier-list",
     border: "border-accent",
