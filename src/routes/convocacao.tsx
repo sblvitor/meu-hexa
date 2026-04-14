@@ -10,6 +10,7 @@ import { PlayerCard } from "@/components/convocacao/player-card"
 import { MAX_CONVOCADOS, SelectedPanel } from "@/components/convocacao/selected-panel"
 import { ShareConvocacaoDialog } from "@/components/convocacao/share-convocacao-dialog"
 import { formatDataConvocacaoPt, groupJogadoresPorSetor } from "@/lib/convocacao-share"
+import { readConvocacaoOrderedIds, writeConvocacao } from "@/lib/local-feature-storage"
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
@@ -32,6 +33,7 @@ const ALL = "all"
 const TOAST_LIMITE_ID = "convocado-limite-26"
 
 const jogadorMap = new Map(JOGADORES.map((j) => [j.id, j]))
+const jogadorIds = new Set(JOGADORES.map((j) => j.id))
 
 const stagger = {
   hidden: {},
@@ -63,6 +65,7 @@ function ConvocacaoPage() {
   const [shareDateLabel, setShareDateLabel] = React.useState("")
   const prevConvocadosLenRef = React.useRef(0)
   const addBlockedAtLimitRef = React.useRef(false)
+  const [storageReady, setStorageReady] = React.useState(false)
 
   const selectedSet = React.useMemo(() => new Set(orderedIds), [orderedIds])
 
@@ -109,6 +112,24 @@ function ConvocacaoPage() {
       toast.dismiss(TOAST_LIMITE_ID)
     }
   }, [orderedIds.length])
+
+  React.useEffect(() => {
+    const saved = readConvocacaoOrderedIds(jogadorIds)
+    if (saved !== null) {
+      setOrderedIds(saved)
+    }
+    setStorageReady(true)
+  }, [])
+
+  React.useEffect(() => {
+    if (!storageReady) return
+    writeConvocacao(orderedIds, jogadorIds)
+  }, [orderedIds, storageReady])
+
+  function clearAllConvocacao() {
+    setOrderedIds([])
+    toast.message("Convocação limpa", { description: "Nenhum jogador selecionado." })
+  }
 
   function toggleId(id: string) {
     addBlockedAtLimitRef.current = false
@@ -247,14 +268,24 @@ function ConvocacaoPage() {
               ))}
             </ToggleGroup>
           </Field>
-          <div className="flex w-full shrink-0 md:w-auto lg:hidden">
-            <Drawer direction="bottom" open={drawerOpen} onOpenChange={setDrawerOpen}>
-              <DrawerTrigger asChild>
-                <Button type="button" variant="outline" className="w-full gap-2 md:w-auto">
-                  <UsersIcon data-icon="inline-start" />
-                  Convocados ({orderedIds.length})
-                </Button>
-              </DrawerTrigger>
+          <div className="flex w-full shrink-0 flex-wrap items-end gap-2 md:w-auto">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-destructive/40 text-destructive hover:bg-destructive/10 md:w-auto"
+              disabled={orderedIds.length === 0}
+              onClick={clearAllConvocacao}
+            >
+              Limpar tudo
+            </Button>
+            <div className="w-full lg:hidden">
+              <Drawer direction="bottom" open={drawerOpen} onOpenChange={setDrawerOpen}>
+                <DrawerTrigger asChild>
+                  <Button type="button" variant="outline" className="w-full gap-2 md:w-auto">
+                    <UsersIcon data-icon="inline-start" />
+                    Convocados ({orderedIds.length})
+                  </Button>
+                </DrawerTrigger>
               <DrawerContent>
                 <DrawerHeader>
                   <DrawerTitle className="sr-only">Jogadores convocados</DrawerTitle>
@@ -270,7 +301,8 @@ function ConvocacaoPage() {
                   />
                 </div>
               </DrawerContent>
-            </Drawer>
+              </Drawer>
+            </div>
           </div>
         </div>
       </FieldGroup>

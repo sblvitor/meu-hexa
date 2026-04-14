@@ -17,7 +17,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { MoreVertical, Plus } from "lucide-react"
+import { MoreVertical, Plus, Trash2 } from "lucide-react"
 import { useHydrated } from "@tanstack/react-router"
 import type {
   DragEndEvent,
@@ -63,6 +63,11 @@ import {
   tierLabelInputFocusRingClass,
   tierLabelInputTextClass,
 } from "@/lib/tier-list-state"
+import {
+  clearTierListStorage,
+  initialTierListFromStorageOrDefault,
+  writeTierList,
+} from "@/lib/local-feature-storage"
 import { cn } from "@/lib/utils"
 
 function tierListCollisionDetection(
@@ -132,7 +137,7 @@ function findContainerByLookup(
   return lookup[id]
 }
 
-const SortableTeamChip = React.memo(function SortableTeamChip({
+const SortableTeamChip = React.memo(function SortableTeamChipInner({
   teamId,
 }: {
   teamId: string
@@ -196,7 +201,7 @@ function TeamChipPreview({ teamId }: { teamId: string }) {
   )
 }
 
-const TierRowDropZone = React.memo(function TierRowDropZone({
+const TierRowDropZone = React.memo(function TierRowDropZoneInner({
   tierId,
   teamIds,
 }: {
@@ -219,7 +224,7 @@ const TierRowDropZone = React.memo(function TierRowDropZone({
   )
 })
 
-const PoolDropZone = React.memo(function PoolDropZone({
+const PoolDropZone = React.memo(function PoolDropZoneInner({
   teamIds,
 }: {
   teamIds: Array<string>
@@ -243,14 +248,22 @@ const PoolDropZone = React.memo(function PoolDropZone({
 })
 
 function TierListBoardContent() {
-  const [tiers, setTiers] = React.useState<Array<TierDefinition>>(() =>
-    createInitialTiers(),
-  )
-  const [items, setItems] = React.useState<ItemsByContainer>(() =>
-    createInitialItems(createInitialTiers()),
-  )
+  const initialBoard = React.useMemo(() => initialTierListFromStorageOrDefault(), [])
+  const [tiers, setTiers] = React.useState<Array<TierDefinition>>(initialBoard.tiers)
+  const [items, setItems] = React.useState<ItemsByContainer>(initialBoard.items)
   const [activeId, setActiveId] = React.useState<string | null>(null)
   const dragSnapshotRef = React.useRef<ItemsByContainer | null>(null)
+
+  React.useEffect(() => {
+    writeTierList(tiers, items)
+  }, [tiers, items])
+
+  function clearAllTierList() {
+    const nextTiers = createInitialTiers()
+    setTiers(nextTiers)
+    setItems(createInitialItems(nextTiers))
+    clearTierListStorage()
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -457,7 +470,7 @@ function TierListBoardContent() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="min-w-[13.5rem]"
+                    className="min-w-54"
                   >
                     <DropdownMenuLabel className="text-xs font-medium normal-case tracking-normal">
                       Cor do rótulo
@@ -505,25 +518,37 @@ function TierListBoardContent() {
           })}
         </div>
 
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          className="w-full border-2 border-border shadow-[2px_2px_0_var(--foreground)] sm:w-auto"
-          disabled={tiers.length >= MAX_TIERS}
-          title={
-            tiers.length >= MAX_TIERS
-              ? `Limite de ${MAX_TIERS} tiers atingido`
-              : undefined
-          }
-          onClick={addTierBelow}
-        >
-          <Plus className="size-4" aria-hidden />
-          Adicionar tier
-          {tiers.length >= MAX_TIERS ? (
-            <span className="sr-only"> — limite de {MAX_TIERS} tiers</span>
-          ) : null}
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="w-full border-2 border-border shadow-[2px_2px_0_var(--foreground)] sm:w-auto"
+            disabled={tiers.length >= MAX_TIERS}
+            title={
+              tiers.length >= MAX_TIERS
+                ? `Limite de ${MAX_TIERS} tiers atingido`
+                : undefined
+            }
+            onClick={addTierBelow}
+          >
+            <Plus className="size-4" aria-hidden />
+            Adicionar tier
+            {tiers.length >= MAX_TIERS ? (
+              <span className="sr-only"> — limite de {MAX_TIERS} tiers</span>
+            ) : null}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full border-2 border-destructive/40 text-destructive shadow-[2px_2px_0_var(--foreground)] hover:bg-destructive/10 sm:w-auto"
+            onClick={clearAllTierList}
+          >
+            <Trash2 className="size-4" aria-hidden />
+            Limpar tudo
+          </Button>
+        </div>
 
         <div className="flex flex-col gap-2">
           <h2 className="font-heading text-sm uppercase tracking-wide">
@@ -546,7 +571,7 @@ export function TierListBoard() {
   if (!hydrated) {
     return (
       <div
-        className="flex min-h-[28rem] flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-muted/15 px-4"
+        className="flex min-h-112 flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-muted/15 px-4"
         aria-busy="true"
         aria-live="polite"
       >
