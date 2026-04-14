@@ -268,18 +268,20 @@ function TierListBoardContent() {
   }
 
   function addTierBelow() {
-    let newTierId: string | null = null
+    const added: { id: string | null } = { id: null }
     setTiers((prev) => {
       if (prev.length >= MAX_TIERS) return prev
-      newTierId = crypto.randomUUID()
+      const id = crypto.randomUUID()
+      added.id = id
       const labelBg =
         TIER_DEFAULT_LABEL_BACKGROUNDS[
           prev.length % TIER_DEFAULT_LABEL_BACKGROUNDS.length
         ]
-      return [...prev, { id: newTierId, label: "Novo", labelBg }]
+      return [...prev, { id, label: "Novo", labelBg }]
     })
-    if (newTierId) {
-      setItems((prev) => ({ ...prev, [newTierId!]: [] }))
+    if (added.id) {
+      const id = added.id
+      setItems((prev) => ({ ...prev, [id]: [] }))
     }
   }
 
