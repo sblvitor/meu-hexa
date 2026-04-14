@@ -3,8 +3,10 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 
 import appCss from "../styles.css?url"
+import type { ReactNode } from "react"
 import { FloatingNav } from "@/components/floating-nav"
 import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -30,16 +32,18 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        <FloatingNav />
-        <div className="min-h-svh pt-20">{children}</div>
-        <Toaster />
+        <TooltipProvider delayDuration={280} skipDelayDuration={120}>
+          <FloatingNav />
+          <div className="min-h-svh pt-20">{children}</div>
+          <Toaster />
+        </TooltipProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",
