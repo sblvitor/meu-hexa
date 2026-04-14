@@ -116,6 +116,7 @@ export const INITIAL_TIER_DEFINITIONS: Array<TierDefinition> = [
 
 /** teamId → which container holds it */
 export type ItemsByContainer = Record<string, Array<string>>
+export type ContainerById = Record<string, string>
 
 /**
  * Accent-fold + case-fold for stable ordering. `String.prototype.localeCompare`
@@ -167,6 +168,19 @@ export function findContainer(
   return undefined
 }
 
+export function createContainerLookup(items: ItemsByContainer): ContainerById {
+  const lookup: ContainerById = {}
+
+  for (const [containerId, list] of Object.entries(items)) {
+    lookup[containerId] = containerId
+    for (const itemId of list) {
+      lookup[itemId] = containerId
+    }
+  }
+
+  return lookup
+}
+
 export function isContainerId(
   items: ItemsByContainer,
   id: UniqueIdentifier,
@@ -179,11 +193,11 @@ export function reorderWithinContainer(
   items: ItemsByContainer,
   containerId: string,
   activeId: string,
-  overId: string,
+  targetIndex: number,
 ): ItemsByContainer {
   const list = items[containerId]
   const oldIndex = list.indexOf(activeId)
-  const newIndex = list.indexOf(overId)
+  const newIndex = Math.max(0, Math.min(targetIndex, list.length - 1))
   if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return items
   return {
     ...items,
@@ -197,6 +211,7 @@ export function moveItemToContainerAtIndex(
   overContainer: string,
   activeId: string,
   overId: UniqueIdentifier,
+  targetIndex?: number,
 ): ItemsByContainer {
   const activeItems = [...items[activeContainer]]
   const overItems = [...items[overContainer]]
@@ -207,7 +222,9 @@ export function moveItemToContainerAtIndex(
   const overSid = String(overId)
 
   let newIndex: number
-  if (isContainerId(items, overId)) {
+  if (typeof targetIndex === "number") {
+    newIndex = Math.max(0, Math.min(targetIndex, overItems.length))
+  } else if (isContainerId(items, overId)) {
     newIndex = overItems.length
   } else {
     const overIndex = overItems.indexOf(overSid)
