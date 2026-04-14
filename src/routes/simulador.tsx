@@ -25,6 +25,13 @@ import {
   lookupThirdByWinner,
   lookupThirdByWinnerPartial,
 } from "@/lib/copa2026-bracket"
+import {
+  clearSimuladorStorage,
+  defaultRanksByGroup,
+  readSimulador,
+  writeSimulador,
+} from "@/lib/local-feature-storage"
+import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/simulador")({
   component: SimuladorPage,
@@ -44,16 +51,10 @@ const fadeUp = {
   },
 }
 
-function defaultRanks(): Record<GroupId, GroupRankByTeam> {
-  const o = {} as Record<GroupId, GroupRankByTeam>
-  for (const g of GROUP_ORDER) {
-    o[g] = {}
-  }
-  return o
-}
-
 function SimuladorPage() {
-  const [ranksByGroup, setRanksByGroup] = React.useState(() => defaultRanks())
+  const [ranksByGroup, setRanksByGroup] = React.useState(() =>
+    defaultRanksByGroup(),
+  )
   const [thirdOrderOverride, setThirdOrderOverride] = React.useState<
     Array<string> | null
   >(null)
@@ -64,10 +65,17 @@ function SimuladorPage() {
   const [thirdOrderInsertion, setThirdOrderInsertion] = React.useState<
     Array<string>
   >([])
+  const [storageReady, setStorageReady] = React.useState(false)
 
-  React.useEffect(() => {
+  function handleRanksChange(
+    next: React.SetStateAction<Record<GroupId, GroupRankByTeam>>,
+  ) {
     setThirdOrderOverride(null)
     setWinners({})
+    setRanksByGroup(next)
+  }
+
+  React.useEffect(() => {
     const pg = buildProvisionalGroupResults(ranksByGroup)
     setThirdOrderInsertion((prev) => {
       const currentSet = new Set<string>()
@@ -86,6 +94,41 @@ function SimuladorPage() {
     })
   }, [ranksByGroup])
 
+  React.useEffect(() => {
+    const s = readSimulador()
+    if (s) {
+      setRanksByGroup(s.ranksByGroup)
+      setThirdOrderOverride(s.thirdOrderOverride)
+      setThirdOrderInsertion(s.thirdOrderInsertion)
+      setWinners(s.winners)
+    }
+    setStorageReady(true)
+  }, [])
+
+  React.useEffect(() => {
+    if (!storageReady) return
+    writeSimulador({
+      ranksByGroup,
+      thirdOrderOverride,
+      thirdOrderInsertion,
+      winners,
+    })
+  }, [
+    ranksByGroup,
+    thirdOrderOverride,
+    thirdOrderInsertion,
+    winners,
+    storageReady,
+  ])
+
+  function clearAllSimulador() {
+    setRanksByGroup(defaultRanksByGroup())
+    setThirdOrderOverride(null)
+    setThirdOrderInsertion([])
+    setWinners({})
+    clearSimuladorStorage()
+  }
+
   const provisionalGr = React.useMemo(
     () => buildProvisionalGroupResults(ranksByGroup),
     [ranksByGroup],
@@ -98,6 +141,7 @@ function SimuladorPage() {
 
   const thirdOrder = thirdOrderOverride ?? thirdOrderInsertion
   const hasAnyThird = thirdOrder.length > 0
+  const hasAnyWinners = Object.keys(winners).length > 0
 
   const hasAnyGroupPlacement = React.useMemo(
     () =>
@@ -146,6 +190,9 @@ function SimuladorPage() {
   )
 
   const champ = winners[104]
+
+  const canClearSimulador =
+    hasAnyGroupPlacement || hasAnyThird || hasAnyWinners
 
   return (
     <div className="relative overflow-x-hidden pb-24">
@@ -205,7 +252,7 @@ function SimuladorPage() {
 
           <motion.div
             variants={fadeUp}
-            className="mt-5 flex flex-wrap gap-2 text-[0.65rem] font-medium tracking-wide text-muted-foreground uppercase sm:text-xs"
+            className="mt-5 flex flex-wrap items-center gap-2 text-[0.65rem] font-medium tracking-wide text-muted-foreground uppercase sm:text-xs"
           >
             {[
               "12 grupos",
@@ -219,6 +266,16 @@ function SimuladorPage() {
                 {chip}
               </span>
             ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="ml-0 normal-case border-destructive/40 text-destructive hover:bg-destructive/10 sm:ml-1"
+              disabled={!canClearSimulador}
+              onClick={clearAllSimulador}
+            >
+              Limpar tudo
+            </Button>
           </motion.div>
         </motion.header>
 
@@ -230,7 +287,7 @@ function SimuladorPage() {
           />
           <GroupStagePanel
             ranksByGroup={ranksByGroup}
-            onRanksChange={setRanksByGroup}
+            onRanksChange={handleRanksChange}
           />
         </section>
 
