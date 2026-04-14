@@ -12,7 +12,6 @@ import {
 } from "@dnd-kit/core"
 import {
   SortableContext,
-  horizontalListSortingStrategy,
   rectSortingStrategy,
   sortableKeyboardCoordinates,
   useSortable,
@@ -26,7 +25,11 @@ import type {
   DragStartEvent,
 } from "@dnd-kit/core"
 
-import type { ItemsByContainer, TierDefinition } from "@/lib/tier-list-state"
+import type {
+  ContainerById,
+  ItemsByContainer,
+  TierDefinition,
+} from "@/lib/tier-list-state"
 import { TeamFlag } from "@/components/simulador/team-flag"
 import { Button } from "@/components/ui/button"
 import {
@@ -49,9 +52,9 @@ import {
   POOL_ID,
   TIER_COLOR_SWATCHES,
   TIER_DEFAULT_LABEL_BACKGROUNDS,
+  createContainerLookup,
   createInitialItems,
   createInitialTiers,
-  findContainer,
   isContainerId,
   isLightLabelBackground,
   moveItemToContainerAtIndex,
@@ -74,7 +77,66 @@ function tierListCollisionDetection(
 const FLAG_CHIP_SIZE = 48
 const FLAG_CHIP_BOX_CLASS = "size-14 box-border p-1"
 
-function SortableTeamChip({ teamId }: { teamId: string }) {
+type RectLike = {
+  top: number
+  left: number
+  width: number
+  height: number
+}
+
+function cloneItemsByContainer(items: ItemsByContainer): ItemsByContainer {
+  return Object.fromEntries(
+    Object.entries(items).map(([containerId, teamIds]) => [containerId, [...teamIds]]),
+  )
+}
+
+function getProjectedIndex(
+  items: ItemsByContainer,
+  overContainer: string,
+  overId: string,
+  activeRect?: RectLike | null,
+  overRect?: RectLike | null,
+): number {
+  const overItems = items[overContainer] ?? []
+
+  if (isContainerId(items, overId)) {
+    return overItems.length
+  }
+
+  const overIndex = overItems.indexOf(overId)
+  if (overIndex < 0) {
+    return overItems.length
+  }
+
+  if (!activeRect || !overRect) {
+    return overIndex
+  }
+
+  const activeCenterX = activeRect.left + activeRect.width / 2
+  const activeCenterY = activeRect.top + activeRect.height / 2
+  const overCenterX = overRect.left + overRect.width / 2
+  const overCenterY = overRect.top + overRect.height / 2
+  const sameRowThreshold = overRect.height * 0.35
+  const sameRow = Math.abs(activeCenterY - overCenterY) <= sameRowThreshold
+  const shouldInsertAfter = sameRow
+    ? activeCenterX > overCenterX
+    : activeCenterY > overCenterY
+
+  return overIndex + (shouldInsertAfter ? 1 : 0)
+}
+
+function findContainerByLookup(
+  lookup: ContainerById,
+  id: string,
+): string | undefined {
+  return lookup[id]
+}
+
+const SortableTeamChip = React.memo(function SortableTeamChip({
+  teamId,
+}: {
+  teamId: string
+}) {
   const {
     attributes,
     listeners,
@@ -119,7 +181,7 @@ function SortableTeamChip({ teamId }: { teamId: string }) {
       </TooltipContent>
     </Tooltip>
   )
-}
+})
 
 function TeamChipPreview({ teamId }: { teamId: string }) {
   return (
@@ -134,7 +196,7 @@ function TeamChipPreview({ teamId }: { teamId: string }) {
   )
 }
 
-function TierRowDropZone({
+const TierRowDropZone = React.memo(function TierRowDropZone({
   tierId,
   teamIds,
 }: {
@@ -148,16 +210,20 @@ function TierRowDropZone({
       ref={setNodeRef}
       className="flex h-full min-h-[104px] min-w-0 flex-1 flex-wrap content-start gap-2 rounded-md border-2 border-[#2a2a2a] bg-[#1a1a1a] p-3 transition-colors"
     >
-      <SortableContext items={teamIds} strategy={horizontalListSortingStrategy}>
+      <SortableContext items={teamIds} strategy={rectSortingStrategy}>
         {teamIds.map((id) => (
           <SortableTeamChip key={id} teamId={id} />
         ))}
       </SortableContext>
     </div>
   )
-}
+})
 
-function PoolDropZone({ teamIds }: { teamIds: Array<string> }) {
+const PoolDropZone = React.memo(function PoolDropZone({
+  teamIds,
+}: {
+  teamIds: Array<string>
+}) {
   const { setNodeRef } = useDroppable({ id: POOL_ID })
 
   return (
@@ -174,7 +240,7 @@ function PoolDropZone({ teamIds }: { teamIds: Array<string> }) {
       </SortableContext>
     </div>
   )
-}
+})
 
 function TierListBoardContent() {
   const [tiers, setTiers] = React.useState<Array<TierDefinition>>(() =>
@@ -184,6 +250,7 @@ function TierListBoardContent() {
     createInitialItems(createInitialTiers()),
   )
   const [activeId, setActiveId] = React.useState<string | null>(null)
+  const dragSnapshotRef = React.useRef<ItemsByContainer | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -195,6 +262,7 @@ function TierListBoardContent() {
   )
 
   function handleDragStart(event: DragStartEvent) {
+    dragSnapshotRef.current = cloneItemsByContainer(items)
     setActiveId(String(event.active.id))
   }
 
@@ -204,16 +272,28 @@ function TierListBoardContent() {
     if (!overId || active.id === overId) return
 
     setItems((prev) => {
-      const activeContainer = findContainer(prev, active.id)
-      const overContainer = findContainer(prev, overId)
+      const containerLookup = createContainerLookup(prev)
+      const activeContainer = findContainerByLookup(
+        containerLookup,
+        String(active.id),
+      )
+      const overContainer = findContainerByLookup(containerLookup, String(overId))
       if (!activeContainer || !overContainer) return prev
       if (activeContainer === overContainer) return prev
+      const targetIndex = getProjectedIndex(
+        prev,
+        overContainer,
+        String(overId),
+        active.rect.current.translated,
+        over.rect,
+      )
       return moveItemToContainerAtIndex(
         prev,
         activeContainer,
         overContainer,
         String(active.id),
         overId,
+        targetIndex,
       )
     })
   }
@@ -221,24 +301,41 @@ function TierListBoardContent() {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     setActiveId(null)
-    if (!over) return
+    if (!over) {
+      if (dragSnapshotRef.current) {
+        setItems(dragSnapshotRef.current)
+      }
+      dragSnapshotRef.current = null
+      return
+    }
 
     setItems((prev) => {
-      const activeContainer = findContainer(prev, active.id)
-      const overContainer = findContainer(prev, over.id)
+      const containerLookup = createContainerLookup(prev)
+      const activeContainer = findContainerByLookup(
+        containerLookup,
+        String(active.id),
+      )
+      const overContainer = findContainerByLookup(
+        containerLookup,
+        String(over.id),
+      )
       if (!activeContainer || !overContainer) return prev
+      const targetIndex = getProjectedIndex(
+        prev,
+        overContainer,
+        String(over.id),
+        active.rect.current.translated,
+        over.rect,
+      )
 
       if (activeContainer === overContainer) {
         const aid = String(active.id)
-        const oid = String(over.id)
-        if (aid === oid) return prev
-        if (
-          isContainerId(prev, over.id) &&
-          prev[activeContainer].at(-1) === aid
-        ) {
-          return prev
-        }
-        return reorderWithinContainer(prev, activeContainer, aid, oid)
+        const currentIndex = prev[activeContainer].indexOf(aid)
+        const normalizedIndex =
+          currentIndex >= 0 && currentIndex < targetIndex
+            ? targetIndex - 1
+            : targetIndex
+        return reorderWithinContainer(prev, activeContainer, aid, normalizedIndex)
       }
 
       return moveItemToContainerAtIndex(
@@ -247,12 +344,18 @@ function TierListBoardContent() {
         overContainer,
         String(active.id),
         over.id,
+        targetIndex,
       )
     })
+    dragSnapshotRef.current = null
   }
 
   function handleDragCancel() {
     setActiveId(null)
+    if (dragSnapshotRef.current) {
+      setItems(dragSnapshotRef.current)
+    }
+    dragSnapshotRef.current = null
   }
 
   function updateTierLabel(tierId: string, label: string) {
