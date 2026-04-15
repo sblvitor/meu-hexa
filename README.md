@@ -1,23 +1,53 @@
-# TanStack Start + shadcn/ui
+# Meu Hexa
 
-This is a template for a new TanStack Start project with React, TypeScript, and shadcn/ui.
+Plataforma web interativa sobre a **Copa do Mundo FIFA 2026**, pensada para torcedores brasileiros: montar a convocação, simular o torneio e classificar as 48 seleções em uma tier list — com cartões prontos para compartilhar.
 
-This repo uses [Bun](https://bun.sh) (`bun.lock`). Install deps with `bun install`; run scripts with `bun run <script>`.
+**Site:** [meuhexa.vlira.workers.dev](https://meuhexa.vlira.workers.dev/)
 
-## Adding components
+## Funcionalidades
 
-To add components to your app, run:
+1. **Convocação** — Escolha 26 jogadores da lista oficial, com filtros por posição e busca por nome. Ao final, gere um cartão estilizado para compartilhar.
+2. **Simulador** — Preencha placares da fase de grupos (com classificação automática) e do mata-mata (oitavas à final), incluindo pênaltis quando necessário. Resumo visual da campanha para compartilhar.
+3. **Tier list** — Organize as 48 seleções em níveis personalizáveis (S, A, B, C, D, F) com arrastar e soltar. Cartão completo da tier list para compartilhar.
+
+## Stack
+
+- [Bun](https://bun.sh) — gerenciador de pacotes e runtime dos scripts
+- [TanStack Start](https://tanstack.com/start) + React 19 + TypeScript
+- [Vite](https://vitejs.dev) 7
+- [Tailwind CSS](https://tailwindcss.com) 4
+- [shadcn/ui](https://ui.shadcn.com) (Radix)
+- Deploy em [Cloudflare Workers](https://workers.cloudflare.com/) (`wrangler`)
+
+## Requisitos
+
+- [Bun](https://bun.sh) (versão alinhada ao `packageManager` do `package.json`, ex.: 1.3.x)
+
+## Como rodar
 
 ```bash
-bunx --bun shadcn@latest add button
+bun install
+bun run dev
 ```
 
-This will place the ui components in the `components` directory.
+O app sobe em **http://localhost:3000** (porta definida no script `dev`).
 
-## Using components
+### Scripts úteis
 
-To use the components in your app, import them as follows:
+| Comando | Descrição |
+|--------|-----------|
+| `bun run dev` | Servidor de desenvolvimento |
+| `bun run build` | Build de produção |
+| `bun run preview` | Preview do build |
+| `bun run test` | Testes (Vitest) |
+| `bun run lint` | ESLint |
+| `bun run typecheck` | TypeScript (`tsc --noEmit`) |
+| `bun run format` | Prettier |
+| `bun run deploy` | Build + deploy Cloudflare (`wrangler deploy`) |
 
-```tsx
-import { Button } from "@/components/ui/button";
-```
+## Estrutura (visão geral)
+
+- `src/routes/` — páginas principais (`index`, `convocacao`, `simulador`, `tier-list`)
+- `src/components/` — UI por feature (`convocacao`, `simulador`, `tier-list`) e `components/ui` (shadcn)
+- `src/data/` — dados de jogadores e do calendário/formato da Copa 2026
+- `src/lib/` — lógica (bracket, SEO, armazenamento local, etc.)
