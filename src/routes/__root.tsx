@@ -5,37 +5,56 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import appCss from "../styles.css?url"
 import type { ReactNode } from "react"
 import { FloatingNav } from "@/components/floating-nav"
+import { siteConfig } from "@/config/site"
+import { buildSeoHead, buildSiteSchemas } from "@/lib/seo"
 import { SiteFooter } from "@/components/site-footer"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
-      {
-        title: "Meu Hexa — Copa do Mundo 2026",
-      },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
-  }),
+  head: () => {
+    const seo = buildSeoHead({
+      title: siteConfig.defaultTitle,
+      description: siteConfig.defaultDescription,
+      path: "/",
+      includeCanonical: false,
+      includeUrlMeta: false,
+      schema: buildSiteSchemas(),
+    })
+
+    return {
+      meta: [
+        {
+          charSet: "utf-8",
+        },
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1",
+        },
+        ...seo.meta,
+      ],
+      links: [
+        {
+          rel: "stylesheet",
+          href: appCss,
+        },
+        {
+          rel: "icon",
+          href: "/favicon.ico",
+        },
+        {
+          rel: "manifest",
+          href: "/manifest.json",
+        },
+      ],
+    }
+  },
   shellComponent: RootDocument,
 })
 
 function RootDocument({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang={siteConfig.language}>
       <head>
         <HeadContent />
       </head>

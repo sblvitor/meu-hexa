@@ -11,6 +11,7 @@ import { MAX_CONVOCADOS, SelectedPanel } from "@/components/convocacao/selected-
 import { ShareConvocacaoDialog } from "@/components/convocacao/share-convocacao-dialog"
 import { formatDataConvocacaoPt, groupJogadoresPorSetor } from "@/lib/convocacao-share"
 import { readConvocacaoOrderedIds, writeConvocacao } from "@/lib/local-feature-storage"
+import { buildSeoHead, buildWebPageSchema } from "@/lib/seo"
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
@@ -25,6 +26,21 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/convocacao")({
+  head: () =>
+    buildSeoHead({
+      title: "Convocacao da Selecao Brasileira",
+      description:
+        "Escolha os 26 convocados do Brasil para a Copa do Mundo 2026, filtre por posicao, busque jogadores e gere um card para compartilhar.",
+      path: "/convocacao",
+      schema: [
+        buildWebPageSchema({
+          title: "Convocacao da Selecao Brasileira",
+          description:
+            "Escolha os 26 convocados do Brasil para a Copa do Mundo 2026, filtre por posicao, busque jogadores e gere um card para compartilhar.",
+          path: "/convocacao",
+        }),
+      ],
+    }),
   component: ConvocacaoPage,
 })
 

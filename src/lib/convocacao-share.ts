@@ -1,11 +1,12 @@
 import type { Jogador, Posicao } from "@/data/jogadores"
+import { siteConfig } from "@/config/site"
 
 /** Fundo opaco do poster — tom “papel de carta” (export + html-to-image). */
 export const POSTER_BACKGROUND_HEX = "#f3efe6"
 
 /** URL exibida e linkada no rodapé do poster de compartilhamento. */
-export const SITE_DISPLAY_URL = "meuhexa.com.br"
-export const SITE_FULL_URL = `https://${SITE_DISPLAY_URL}`
+export const SITE_FULL_URL = siteConfig.siteUrl.replace(/\/+$/, "")
+export const SITE_DISPLAY_URL = new URL(SITE_FULL_URL).host
 
 const SETORES: Array<{ titulo: string; posicoes: ReadonlyArray<Posicao> }> = [
   { titulo: "Goleiros", posicoes: ["GOL"] },

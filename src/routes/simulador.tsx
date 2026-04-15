@@ -31,9 +31,25 @@ import {
   readSimulador,
   writeSimulador,
 } from "@/lib/local-feature-storage"
+import { buildSeoHead, buildWebPageSchema } from "@/lib/seo"
 import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/simulador")({
+  head: () =>
+    buildSeoHead({
+      title: "Simulador da Copa do Mundo 2026",
+      description:
+        "Preencha os placares da fase de grupos, avance no mata-mata e descubra o campeao da sua simulacao da Copa do Mundo 2026.",
+      path: "/simulador",
+      schema: [
+        buildWebPageSchema({
+          title: "Simulador da Copa do Mundo 2026",
+          description:
+            "Preencha os placares da fase de grupos, avance no mata-mata e descubra o campeao da sua simulacao da Copa do Mundo 2026.",
+          path: "/simulador",
+        }),
+      ],
+    }),
   component: SimuladorPage,
 })
 

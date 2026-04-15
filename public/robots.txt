@@ -1,3 +1,5 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Disallow:
+Allow: /
+
+Sitemap: https://meuhexa.vlira.workers.dev/sitemap.xml

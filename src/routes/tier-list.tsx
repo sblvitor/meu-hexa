@@ -6,9 +6,25 @@ import {
   TierListBackdrop,
   TierListLettersStrip,
 } from "@/components/tier-list/tier-list-page-decor"
+import { buildSeoHead, buildWebPageSchema } from "@/lib/seo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const Route = createFileRoute("/tier-list")({
+  head: () =>
+    buildSeoHead({
+      title: "Tier List das Selecoes",
+      description:
+        "Monte sua tier list da Copa do Mundo 2026 com as 48 selecoes do torneio, arraste os times entre tiers e compartilhe seu ranking.",
+      path: "/tier-list",
+      schema: [
+        buildWebPageSchema({
+          title: "Tier List das Selecoes",
+          description:
+            "Monte sua tier list da Copa do Mundo 2026 com as 48 selecoes do torneio, arraste os times entre tiers e compartilhe seu ranking.",
+          path: "/tier-list",
+        }),
+      ],
+    }),
   component: TierListPage,
 })
 

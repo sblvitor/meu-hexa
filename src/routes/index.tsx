@@ -3,11 +3,29 @@ import { Link, createFileRoute } from "@tanstack/react-router"
 import { motion } from "motion/react"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { buildSeoHead, buildWebPageSchema } from "@/lib/seo"
 import { cn } from "@/lib/utils"
 import { useCountdown } from "@/hooks/use-countdown"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
-export const Route = createFileRoute("/")({ component: LandingPage })
+export const Route = createFileRoute("/")({
+  head: () =>
+    buildSeoHead({
+      title: "Meu Hexa",
+      description:
+        "Viva a Copa do Mundo 2026 com ferramentas para montar a convocacao do Brasil, simular resultados e criar uma tier list completa das selecoes.",
+      path: "/",
+      schema: [
+        buildWebPageSchema({
+          title: "Meu Hexa",
+          description:
+            "Viva a Copa do Mundo 2026 com ferramentas para montar a convocacao do Brasil, simular resultados e criar uma tier list completa das selecoes.",
+          path: "/",
+        }),
+      ],
+    }),
+  component: LandingPage,
+})
 
 const BRAZIL_DEBUT = new Date("2026-06-13T19:00:00-03:00")
 
