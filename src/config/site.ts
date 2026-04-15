@@ -38,4 +38,5 @@ export const siteConfig = {
     name: "Meu Hexa",
     foundingDate: "2026",
   },
+  googleSiteVerification: "kC1yO05E6veB5C2tff9ndvxSajp5jU98eAurVYIeL0I" as string,
 } as const

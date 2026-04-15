@@ -3,10 +3,13 @@ import { Link, createFileRoute } from "@tanstack/react-router"
 import { motion } from "motion/react"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { siteConfig } from "@/config/site"
 import { buildSeoHead, buildWebPageSchema } from "@/lib/seo"
 import { cn } from "@/lib/utils"
 import { useCountdown } from "@/hooks/use-countdown"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+
+const googleSiteVerification = siteConfig.googleSiteVerification.trim() 
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -15,6 +18,9 @@ export const Route = createFileRoute("/")({
       description:
         "Viva a Copa do Mundo 2026 com ferramentas para montar a convocacao do Brasil, simular resultados e criar uma tier list completa das selecoes.",
       path: "/",
+      additionalMeta: googleSiteVerification
+        ? [{ name: "google-site-verification", content: googleSiteVerification }]
+        : [],
       schema: [
         buildWebPageSchema({
           title: "Meu Hexa",

@@ -2,6 +2,8 @@ import { siteConfig, siteFooterCredit } from "@/config/site"
 
 type JsonLd = Record<string, unknown>
 
+type ExtraMeta = { name?: string; property?: string; content: string }
+
 type SeoInput = {
   title: string
   description: string
@@ -14,6 +16,8 @@ type SeoInput = {
   includeUrlMeta?: boolean
   noIndex?: boolean
   schema?: Array<JsonLd>
+  /** Meta tags extras no `<head>` (ex.: verificação do Google Search Console). */
+  additionalMeta?: ReadonlyArray<ExtraMeta>
 }
 
 export const publicSiteRoutes = ["/", "/convocacao", "/simulador", "/tier-list"] as const
@@ -109,6 +113,7 @@ export function buildSeoHead({
   includeUrlMeta = true,
   noIndex = false,
   schema = [],
+  additionalMeta = [],
 }: SeoInput) {
   const pageTitle = buildPageTitle(title)
   const pageUrl = buildAbsoluteUrl(path)
@@ -134,6 +139,7 @@ export function buildSeoHead({
       { name: "twitter:description", content: description },
       { name: "twitter:image", content: imageUrl },
       ...(includeUrlMeta ? ([{ property: "og:url", content: pageUrl }] as const) : []),
+      ...additionalMeta,
     ],
     links: includeCanonical ? [{ rel: "canonical", href: pageUrl }] : [],
     scripts: schema.map((entry) => ({
