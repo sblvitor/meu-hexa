@@ -5,6 +5,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import appCss from "../styles.css?url"
 import type { ReactNode } from "react"
 import { FloatingNav } from "@/components/floating-nav"
+import { SiteFooter } from "@/components/site-footer"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
@@ -41,7 +42,10 @@ function RootDocument({ children }: { children: ReactNode }) {
       <body>
         <TooltipProvider delayDuration={280} skipDelayDuration={120}>
           <FloatingNav />
-          <div className="min-h-svh pt-20">{children}</div>
+          <div className="flex min-h-svh flex-col pt-20">
+            <div className="flex-1">{children}</div>
+            <SiteFooter />
+          </div>
           <Toaster />
         </TooltipProvider>
         <TanStackDevtools

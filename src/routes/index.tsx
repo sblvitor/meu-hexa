@@ -3,7 +3,6 @@ import { Link, createFileRoute } from "@tanstack/react-router"
 import { motion } from "motion/react"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { useCountdown } from "@/hooks/use-countdown"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -254,19 +253,6 @@ function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* ════════ FOOTER ════════ */}
-      <footer className="px-4 pt-16 pb-8 md:px-8">
-        <div className="mx-auto max-w-5xl">
-          <Separator className="mb-8" />
-          <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-            <p className="font-heading text-sm tracking-wider">Meu Hexa</p>
-            <p className="text-xs text-muted-foreground">
-              Feito com paixão pelo hexa · FIFA 2026
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

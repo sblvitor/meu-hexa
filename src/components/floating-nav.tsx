@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils"
 const SCROLL_DELTA = 10
 const TOP_REVEAL_PX = 32
 
-const navItems = [
+export const navItems = [
   { to: "/", label: "Home", exact: true },
   { to: "/convocacao", label: "Convocação", exact: false },
   { to: "/simulador", label: "Simulador (da Copa)", exact: false },
