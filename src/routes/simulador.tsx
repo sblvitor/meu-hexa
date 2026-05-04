@@ -33,6 +33,7 @@ import {
 } from "@/lib/local-feature-storage"
 import { buildSeoHead, buildWebPageSchema } from "@/lib/seo"
 import { Button } from "@/components/ui/button"
+import { ChevronDown, ChevronUp } from "lucide-react"
 
 export const Route = createFileRoute("/simulador")({
   head: () =>
@@ -67,6 +68,28 @@ const fadeUp = {
   },
 }
 
+const SCROLL_ANCHOR_OFFSET_PX = 112
+
+function collectSimuladorSections(
+  grupos: React.RefObject<HTMLElement | null>,
+  terceiros: React.RefObject<HTMLElement | null>,
+  mataMata: React.RefObject<HTMLElement | null>,
+): HTMLElement[] {
+  return [grupos.current, terceiros.current, mataMata.current].filter(
+    (el): el is HTMLElement => el !== null,
+  )
+}
+
+function activeSimuladorSectionIndex(sections: HTMLElement[]): number {
+  const anchorY = window.scrollY + SCROLL_ANCHOR_OFFSET_PX
+  let active = -1
+  for (let i = 0; i < sections.length; i++) {
+    const top = sections[i].getBoundingClientRect().top + window.scrollY
+    if (top <= anchorY) active = i
+  }
+  return active
+}
+
 function SimuladorPage() {
   const [ranksByGroup, setRanksByGroup] = React.useState(() =>
     defaultRanksByGroup(),
@@ -82,6 +105,25 @@ function SimuladorPage() {
     Array<string>
   >([])
   const [storageReady, setStorageReady] = React.useState(false)
+
+  const gruposSectionRef = React.useRef<HTMLElement | null>(null)
+  const terceirosSectionRef = React.useRef<HTMLElement | null>(null)
+  const mataMataSectionRef = React.useRef<HTMLElement | null>(null)
+  const [nextScrollWrapsToFirst, setNextScrollWrapsToFirst] =
+    React.useState(false)
+
+  const scrollToNextSection = React.useCallback(() => {
+    const sections = collectSimuladorSections(
+      gruposSectionRef,
+      terceirosSectionRef,
+      mataMataSectionRef,
+    )
+    if (sections.length === 0) return
+
+    const active = activeSimuladorSectionIndex(sections)
+    const next = active + 1 < sections.length ? active + 1 : 0
+    sections[next].scrollIntoView({ behavior: "smooth", block: "start" })
+  }, [])
 
   function handleRanksChange(
     next: React.SetStateAction<Record<GroupId, GroupRankByTeam>>,
@@ -207,6 +249,27 @@ function SimuladorPage() {
 
   const champ = winners[104]
 
+  React.useEffect(() => {
+    const update = () => {
+      const sections = collectSimuladorSections(
+        gruposSectionRef,
+        terceirosSectionRef,
+        mataMataSectionRef,
+      )
+      if (sections.length === 0) return
+      const active = activeSimuladorSectionIndex(sections)
+      setNextScrollWrapsToFirst(active === sections.length - 1)
+    }
+
+    update()
+    window.addEventListener("scroll", update, { passive: true })
+    window.addEventListener("resize", update)
+    return () => {
+      window.removeEventListener("scroll", update)
+      window.removeEventListener("resize", update)
+    }
+  }, [storageReady, hasAnyGroupPlacement, hasAnyThird, champ])
+
   const canClearSimulador =
     hasAnyGroupPlacement || hasAnyThird || hasAnyWinners
 
@@ -295,7 +358,10 @@ function SimuladorPage() {
           </motion.div>
         </motion.header>
 
-        <section className="mb-2 flex flex-col gap-4">
+        <section
+          ref={gruposSectionRef}
+          className="mb-2 flex scroll-mt-24 flex-col gap-4"
+        >
           <SimuladorSectionHeading
             kicker="Etapa 01"
             title="Fase de grupos"
@@ -309,7 +375,10 @@ function SimuladorPage() {
 
         <SimuladorTicketDivider />
 
-        <section className="mb-2 flex flex-col gap-4">
+        <section
+          ref={terceirosSectionRef}
+          className="mb-2 flex scroll-mt-24 flex-col gap-4"
+        >
           <SimuladorSectionHeading
             kicker="Etapa 02"
             title="Terceiros colocados"
@@ -333,7 +402,10 @@ function SimuladorPage() {
 
         <SimuladorTicketDivider />
 
-        <section className="flex flex-col gap-4">
+        <section
+          ref={mataMataSectionRef}
+          className="flex scroll-mt-24 flex-col gap-4"
+        >
           <SimuladorSectionHeading
             kicker="Etapa 03"
             title="Mata-mata"
@@ -396,6 +468,21 @@ function SimuladorPage() {
           )}
         </section>
       </div>
+
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-1/2 z-40 -translate-x-1/2 gap-1.5 rounded-full border-2 border-border bg-card/95 px-4 shadow-[4px_4px_0_var(--foreground)] backdrop-blur-md sm:bottom-8"
+        onClick={scrollToNextSection}
+      >
+        Próxima etapa
+        {nextScrollWrapsToFirst ? (
+          <ChevronUp className="size-4 shrink-0" aria-hidden />
+        ) : (
+          <ChevronDown className="size-4 shrink-0" aria-hidden />
+        )}
+      </Button>
     </div>
   )
 }
