@@ -1,6 +1,7 @@
 import * as React from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { motion } from "motion/react"
+import { ChevronDown, ChevronUp } from "lucide-react"
 import type { GroupId, GroupRankByTeam } from "@/data/copa2026"
 import {
   GROUP_ORDER,
@@ -33,7 +34,6 @@ import {
 } from "@/lib/local-feature-storage"
 import { buildSeoHead, buildWebPageSchema } from "@/lib/seo"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp } from "lucide-react"
 
 export const Route = createFileRoute("/simulador")({
   head: () =>
@@ -74,13 +74,13 @@ function collectSimuladorSections(
   grupos: React.RefObject<HTMLElement | null>,
   terceiros: React.RefObject<HTMLElement | null>,
   mataMata: React.RefObject<HTMLElement | null>,
-): HTMLElement[] {
+): Array<HTMLElement> {
   return [grupos.current, terceiros.current, mataMata.current].filter(
     (el): el is HTMLElement => el !== null,
   )
 }
 
-function activeSimuladorSectionIndex(sections: HTMLElement[]): number {
+function activeSimuladorSectionIndex(sections: Array<HTMLElement>): number {
   const anchorY = window.scrollY + SCROLL_ANCHOR_OFFSET_PX
   let active = -1
   for (let i = 0; i < sections.length; i++) {
